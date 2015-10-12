@@ -13,13 +13,13 @@ Target path for secrets csv.
 .\convert-toxml.ps1 -Target c:\temp\export.csv -PathFolder c:\temp\folders.csv -PathSecret c:\secure\secrets.csv
 #>
 param(
-	[parameter(Mandatory=$False)][string]$Target = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\secretserver.xml',
-	[parameter(Mandatory=$False)][string]$PathFolder = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\folders.csv',
-	[parameter(Mandatory=$False)][string]$PathSecret = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\secrets.csv'
+	[parameter(Mandatory=$False)][string]$Target = "$PSScriptRoot\secretserver.xml",
+	[parameter(Mandatory=$False)][string]$PathFolder = "$PSScriptRoot\folders.csv",
+	[parameter(Mandatory=$False)][string]$PathSecret = "$PSScriptRoot\secrets.csv"
 )
 
-$folders = import-csv $PathFolder -Delimiter ';'
-$secrets = import-csv $PathSecret -Delimiter ';'
+$folders = import-csv $PathFolder -Delimiter ';' -Encoding UTF8
+$secrets = import-csv $PathSecret -Delimiter ';' -Encoding UTF8
 
 $xmlWriter = New-Object System.XML.XmlTextWriter($Target,$null)
 
@@ -49,7 +49,7 @@ $folders | foreach {
 		$xmlWriter.WriteElementString("View", "true")
 		$xmlWriter.WriteElementString("Edit", "true")
 		$xmlWriter.WriteElementString("Owner", "true")
-		$xmlWriter.WriteElementString("GroupName", "SysPartner.local\FS_Ekonomi")
+		$xmlWriter.WriteElementString("GroupName", "lab.sp.local\sec_secretAdmin")
 		$xmlWriter.WriteEndElement()
 		$xmlWriter.WriteStartElement("Permission")
 		$xmlWriter.WriteElementString("View", "true")
@@ -225,5 +225,3 @@ $xmlWriter.WriteEndElement()
 $xmlWriter.WriteEndDocument()
 $xmlWriter.Flush()
 $xmlWriter.Close()
-
-notepad $path
