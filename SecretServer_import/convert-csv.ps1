@@ -1,8 +1,8 @@
 <#
 .SYNOPSIS
-Converts network password manager export to readable CSV files. Outputs two files, folders.csv and secrets.csv.
+Converts Network Password Manager 2.2 export to readable CSV files. Outputs two files, folders.csv and secrets.csv.
 .Description
-Converts network password manager export to two readable CSV files, for management and later export to XML
+Converts network password manager 2.2 export to two readable CSV files, for management and later export to XML
 
 .Parameter -Path
 Location of Network Password Manager output file.
@@ -14,17 +14,16 @@ Destination path for secrets csv.
 .\convert-csv.ps1 -Path c:\temp\export.csv -PathFolder c:\temp\folders.csv -PathSecret c:\secure\secrets.csv
 #>
 param(
-	[parameter(Mandatory=$False)][string]$Path = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\FakeNPMdump.csv',
-	[parameter(Mandatory=$False)][string]$PathFolder = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\folders.csv',
-	[parameter(Mandatory=$False)][string]$PathSecret = 'C:\Users\frejuz\Documents\Scripts\Password export_import SecretServer\secrets.csv'
+	[parameter(Mandatory=$False)][string]$Path = "$PSScriptRoot\FakeNPMdump.csv",
+	[parameter(Mandatory=$False)][string]$PathFolder = "$PSScriptRoot\folder.csv",
+	[parameter(Mandatory=$False)][string]$PathSecret = "$PSScriptRoot\secret.csv"
 )
-$rows = Import-Csv $Path -Delimiter ';'
+$rows = Import-Csv $Path -Delimiter ';' -Encoding UTF8
 
 $folders = $PathFolder
 $secrets = $PathSecret
 $secretCollection = @()
 $pathCollection = @()
-Measure-Command{
 $rows | foreach {
 	$name = $PSItem.Name
 	$login = $PSItem.Login
@@ -46,6 +45,7 @@ $rows | foreach {
 	if($name[0] -notlike "*\*"){
 		$hash = $null
 		$object = $null
+		#Newline is handled differently in NPM and SecretServer.
 		if($comment -ne $null){
 			$comment = $comment.replace('#13','##BR##')
 		}
@@ -64,6 +64,5 @@ $rows | foreach {
 		$secretCollection += $object
 	}
 }
-$secretCollection | Export-Csv -Delimiter ';' -Path $secrets -NoTypeInformation
-$pathCollection | Export-Csv -Delimiter ';' -Path $folders -NoTypeInformation
-}
+$secretCollection | Export-Csv -Delimiter ';' -Path $secrets -NoTypeInformation -Encoding UTF8
+$pathCollection | Export-Csv -Delimiter ';' -Path $folders -NoTypeInformation -Encoding UTF8
